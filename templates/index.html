@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media Addiction Detector</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .form-container {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 1em;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #e0e0e0;
+            outline: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            border: none;
+        }
+
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85em;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .value-display {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 4px 10px;
+            border-radius: 4px;
+            margin-left: 10px;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-container {
+            margin-top: 30px;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        .result-container.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-container.low {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+
+        .result-container.moderate {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            color: #856404;
+        }
+
+        .result-container.high {
+            background: #ffe5cc;
+            border: 2px solid #fd7e14;
+            color: #cc5200;
+        }
+
+        .result-container.severe {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+
+        .score-display {
+            font-size: 3em;
+            font-weight: 700;
+            margin: 20px 0;
+        }
+
+        .level-badge {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.2em;
+            margin: 15px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .result-container.low .level-badge {
+            background: #28a745;
+            color: white;
+        }
+
+        .result-container.moderate .level-badge {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .result-container.high .level-badge {
+            background: #fd7e14;
+            color: white;
+        }
+
+        .result-container.severe .level-badge {
+            background: #dc3545;
+            color: white;
+        }
+
+        .message {
+            font-size: 1.1em;
+            margin-top: 15px;
+            font-weight: 500;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            color: #dc3545;
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8d7da;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .error.show {
+            display: block;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            color: #004085;
+            font-size: 0.95em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="icon">📱</div>
+            <h1>Social Media Addiction Detector</h1>
+            <p>Analyze Your Social Media Habits</p>
+        </div>
+
+        <div class="form-container">
+            <div class="info-box">
+                ℹ️ Please provide honest answers for accurate prediction of your social media addiction level.
+            </div>
+
+            <form id="predictionForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="age">Age</label>
+                        <input type="number" id="age" min="13" max="100" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" required>
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="academic_level">Academic Level</label>
+                        <select id="academic_level" required>
+                            <option value="">Select Academic Level</option>
+                            <option value="High School">High School</option>
+                            <option value="Bachelor">Bachelor's Degree</option>
+                            <option value="Master">Master's Degree</option>
+                            <option value="PhD">PhD</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="country">Country</label>
+                        <select id="country" required>
+                            <option value="">Select Country</option>
+                            <option value="USA">United States</option>
+                            <option value="UK">United Kingdom</option>
+                            <option value="Canada">Canada</option>
+                            <option value="Australia">Australia</option>
+                            <option value="India">India</option>
+                            <option value="Pakistan">Pakistan</option>
+                            <option value="Germany">Germany</option>
+                            <option value="France">France</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="daily_usage">
+                        Daily Usage Hours
+                        <span class="value-display" id="dailyValue">0</span>
+                    </label>
+                    <input type="range" id="daily_usage" min="0" max="24" step="0.5" value="0" required>
+                    <div class="range-labels">
+                        <span>0 hours</span>
+                        <span>24 hours</span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="platform">Most Used Platform</label>
+                        <select id="platform" required>
+                            <option value="">Select Platform</option>
+                            <option value="Instagram">Instagram</option>
+                            <option value="TikTok">TikTok</option>
+                            <option value="Twitter">Twitter/X</option>
+                            <option value="Facebook">Facebook</option>
+                            <option value="YouTube">YouTube</option>
+                            <option value="Snapchat">Snapchat</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="academic_perf">
+                            Affects Academic Performance (1-10)
+                            <span class="value-display" id="acadPerfValue">5</span>
+                        </label>
+                        <input type="range" id="academic_perf" min="1" max="10" value="5" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sleep_hours">
+                            Sleep Hours Per Night (1-12)
+                            <span class="value-display" id="sleepHoursValue">7</span>
+                        </label>
+                        <input type="range" id="sleep_hours" min="1" max="12" value="7" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mental_health">
+                            Mental Health Score (1-10)
+                            <span class="value-display" id="mentalHealthValue">5</span>
+                        </label>
+                        <input type="range" id="mental_health" min="1" max="10" value="5" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="relationship">Relationship Status</label>
+                        <select id="relationship" required>
+                            <option value="">Select Status</option>
+                            <option value="Single">Single</option>
+                            <option value="In Relationship">In Relationship</option>
+                            <option value="Married">Married</option>
+                            <option value="Prefer Not to Say">Prefer Not to Say</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="conflicts">
+                            Conflicts Over Social Media (1-10)
+                            <span class="value-display" id="conflictsValue">5</span>
+                        </label>
+                        <input type="range" id="conflicts" min="1" max="10" value="5" required>
+                    </div>
+                </div>
+                </div>
+
+                <button type="submit" id="submitBtn">Predict Addiction Level</button>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyzing your data...</p>
+            </div>
+
+            <div class="error" id="error"></div>
+
+            <div class="result-container" id="result">
+                <div class="score-display" id="scoreDisplay"></div>
+                <div class="level-badge" id="levelBadge"></div>
+                <div class="message" id="message"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update range value displays
+        document.getElementById('daily_usage').addEventListener('input', function() {
+            document.getElementById('dailyValue').textContent = (Math.round(this.value * 10) / 10).toFixed(1);
+        });
+
+        document.getElementById('academic_perf').addEventListener('input', function() {
+            document.getElementById('acadPerfValue').textContent = this.value;
+        });
+
+        document.getElementById('sleep_hours').addEventListener('input', function() {
+            document.getElementById('sleepHoursValue').textContent = this.value;
+        });
+
+        document.getElementById('mental_health').addEventListener('input', function() {
+            document.getElementById('mentalHealthValue').textContent = this.value;
+        });
+
+        document.getElementById('conflicts').addEventListener('input', function() {
+            document.getElementById('conflictsValue').textContent = this.value;
+        });
+
+        // Form submission
+        document.getElementById('predictionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const result = document.getElementById('result');
+
+            loading.style.display = 'block';
+            error.classList.remove('show');
+            result.classList.remove('show');
+
+            try {
+                const formData = {
+                    age: document.getElementById('age').value,
+                    gender: document.getElementById('gender').value,
+                    academic_level: document.getElementById('academic_level').value,
+                    country: document.getElementById('country').value,
+                    daily_usage: document.getElementById('daily_usage').value,
+                    platform: document.getElementById('platform').value,
+                    academic_perf: document.getElementById('academic_perf').value,
+                    sleep_hours: document.getElementById('sleep_hours').value,
+                    mental_health: document.getElementById('mental_health').value,
+                    relationship: document.getElementById('relationship').value,
+                    conflicts: document.getElementById('conflicts').value
+                };
+
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                loading.style.display = 'none';
+
+                if (data.success) {
+                    document.getElementById('scoreDisplay').textContent = data.prediction;
+                    document.getElementById('levelBadge').textContent = data.level;
+                    document.getElementById('message').textContent = data.message;
+                    
+                    result.className = 'result-container show ' + data.color;
+                } else {
+                    error.textContent = 'Error: ' + data.error;
+                    error.classList.add('show');
+                }
+            } catch (err) {
+                loading.style.display = 'none';
+                error.textContent = 'Network error. Please try again.';
+                error.classList.add('show');
+            }
+        });
+    </script>
+</body>
+</html>
